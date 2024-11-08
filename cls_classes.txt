@@ -1,0 +1,10 @@
+bad_green_apple
+green_apple
+bad_red_apple
+red_apple
+bad_min_apple
+min_apple
+bad_big_green_apple
+big_green_apple
+bad_big_red_apple
+big_red_apple
