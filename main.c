@@ -3,9 +3,10 @@
 
 		uint8 rx,rx1;	
 		int Pause=0;
+		int Flag=0;
 		uint32_t onTime=40;
 		uint32_t offTime=60;
-		uint8 tx0[]="state.n0.val=1\xFF\xFF\xFF";						//¶¨ÒåÒª·¢ËÍµÄ×Ö·û´®Êý¾Ý
+		uint8 tx0[]="state.n0.val=1\xFF\xFF\xFF";						
 		uint32_t packetSize0 = sizeof(tx0) - 1;							//·µ»ØÒª·¢ËÍµÄ×Ö·û´®×Ö·û¸öÊý(¼õÈ¥×Ö·û´®Ä©Î²µÄ¿Õ×Ö·û)
 		uint8 tx1[]="state.n1.val=1\xFF\xFF\xFF";						//¶¨ÒåÒª·¢ËÍµÄ×Ö·û´®Êý¾Ý
 		uint32_t packetSize1 = sizeof(tx1) - 1;							//·µ»ØÒª·¢ËÍµÄ×Ö·û´®×Ö·û¸öÊý(¼õÈ¥×Ö·û´®Ä©Î²µÄ¿Õ×Ö·û)
@@ -47,41 +48,24 @@ int main(void)
 	InitPS2();					//PS2ÓÎÏ·ÊÖ±ú½ÓÊÕÆ÷³õÊ¼»¯
 	InitFlash();				//ÉÁ´æ
 	InitMemory();				//ÄÚ´æ
-	InitBusServoCtrl();	//¶æ»ú¿ØÖÆ
+	InitBusServoCtrl();			//¶æ»ú¿ØÖÆ
 	LED = LED_ON;				//LED´ò¿ª
 	
-	//¶æ»ú×é¿ØÖÆ
-	//BusServoCtrl(1,SERVO_MOVE_TIME_WRITE,500,1000);
-	//BusServoCtrl(2,SERVO_MOVE_TIME_WRITE,500,1000);
-	//BusServoCtrl(3,SERVO_MOVE_TIME_WRITE,500,1000);
-	//BusServoCtrl(4,SERVO_MOVE_TIME_WRITE,500,1000);
-	//BusServoCtrl(5,SERVO_MOVE_TIME_WRITE,500,1000);
-	//BusServoCtrl(6,SERVO_MOVE_TIME_WRITE,500,1000);
-	
-//		DelayMs(1000);
-//µ¥¶æ»ú¿ØÖÆ£¨ÉèÖÃid¡¢Pluse¡¢Time£©
-////---ÓÒ
-//		ServoSetPluseAndTime( 1, 2100, 1000 );
-////---ÖÐ
-//DelayMs(1000);
-//		ServoSetPluseAndTime( 1, 1500, 1000 );
-////---×ó
-//DelayMs(1000);
-//		ServoSetPluseAndTime( 1, 900, 1000 );
 
-//---×ó¼«ÏÞ
-	//ServoSetPluseAndTime( 1, 500, 1000 );
-//---ÓÒ¼«ÏÞ	
-	//ServoSetPluseAndTime( 1, 2500, 1000 );
-
-
-	//ServoSetPluseAndTime( 5, 500, 90 );
 
 	while(1)
 	{
 
+		switch(Flag){
+			case 1 :ServoSetPluseAndTime( 1, 2500, 90 );break;
+			case 2 :ServoSetPluseAndTime( 1, 1800, 90 );break;
+			case 3 :ServoSetPluseAndTime( 1, 1150, 90 );break;
+			case 4 :ServoSetPluseAndTime( 1, 500, 90 );break;			
+		}
 			USART_HMI();
 			ControlGPIOWithDelay(onTime,offTime);
+			TaskRun();
+	
 	}
 }
 
@@ -103,6 +87,7 @@ void USART_HMI(void){
 		if (rx == 'A')			
 			{	
 				LED = LED_OFF;//--ÖÐÖÊ
+				Flag=1;
 				ServoSetPluseAndTime( 1, 2500, 90 );
 //				DelayMs(100);
 				Uart1SendData(rx);
@@ -111,6 +96,7 @@ void USART_HMI(void){
 		if (rx == 66)			
 			{	
 				LED = LED_OFF;//--»µ¹û
+				Flag=2;
 				ServoSetPluseAndTime( 1, 1800, 90 );
 				Uart1SendData(rx);
 				USART3SendDataPacket(tx0,packetSize0);
@@ -118,6 +104,7 @@ void USART_HMI(void){
 		if (rx == 67)			
 				{
 				LED = LED_ON;//---µÍÖÊ
+				Flag=3;
 				ServoSetPluseAndTime( 1, 1150, 90 );
 				Uart1SendData(rx);
 				USART3SendDataPacket(tx1,packetSize1);
@@ -133,6 +120,7 @@ void USART_HMI(void){
 					ControlGPIOWithDelay(onTime,offTime);
 					}
 				LED = LED_OFF;//---¸ßÖÊÁ¿
+				Flag=4;
 				ServoSetPluseAndTime( 1, 500, 90 );
 				Uart1SendData(rx);
 				USART3SendDataPacket(tx3,packetSize3);
